@@ -28,8 +28,13 @@ window.onload = () => {
   document.querySelector('.modal-container').style.display = 'none';
 };
 
-function showModal() {
-  document.querySelector('.modal-container').style.display = '';
+function toggleModal() {
+  const modalContainer = document.querySelector('.modal-container');
+  modalContainer.style.display = '';
+  const closeBtn = document.getElementsByTagName('strong')[0];
+  closeBtn.addEventListener('click', () => {
+    modalContainer.style.display = 'none';
+  });
 }
 
 /**
@@ -38,7 +43,6 @@ function showModal() {
  */
 function updateModal() {
   const modalInfoContainer = document.querySelector('.modal-info-container');
-  console.log(modalInfoContainer.childNodes);
   const modalImg = document.querySelector('.modal-img');
   const modalName = document.querySelector('.modal-name');
   const modalEmail = modalInfoContainer.childNodes[5];
@@ -63,7 +67,7 @@ function updateModal() {
     activeProfile.address.postcode;
   modalBirthday.innerHTML = `Birthday: ${activeProfile.birthday}`;
 
-  showModal();
+  toggleModal();
 }
 
 /**
