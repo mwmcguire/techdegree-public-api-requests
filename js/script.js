@@ -1,45 +1,6 @@
 const randomUserUrl = 'https://randomuser.me/api/?results=12';
-class Profile {
-  constructor(image, name, email, city, phone, address, birthday) {
-    this.image = image;
-    this.name = name;
-    this.email = email;
-    this.city = city;
-    this.phone = phone;
-    this.address = address;
-    this.birthday = birthday;
-  }
-
-  updateModal() {
-    const modalHTML = `<div class="modal-container">
-  <div class="modal">
-      <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-      <div class="modal-info-container">
-          <img class="modal-img" src=${this.image} alt="profile picture">
-          <h3 id="name" class="modal-name cap">${this.name}</h3>
-          <p class="modal-text">${this.email}</p>
-          <p class="modal-text cap">${this.city}</p>
-          <hr>
-          <p class="modal-text">${this.phone}</p>
-          <p class="modal-text">${this.address}</p>
-          <p class="modal-text">Birthday: ${this.birthday}</p>
-      </div>
-  </div>`;
-
-    gallery.insertAdjacentHTML('afterend', modalHTML);
-  }
-}
-
-const activeUser = new Profile(
-  'image',
-  'Joe',
-  'email',
-  'city',
-  'phone',
-  'adress',
-  'birthday'
-);
-console.log(activeUser);
+const userProfiles = [];
+const activeProfile = {};
 
 // Fetch API data
 window.onload = () => {
@@ -50,8 +11,43 @@ window.onload = () => {
 };
 
 /**
+ * Function to update modal information
+ * @param {Object} profile object chosen to be used
+ */
+function updateModal() {
+  const modalHTML = `<div class="modal-container">
+  <div class="modal">
+      <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+      <div class="modal-info-container">
+          <img class="modal-img" src=${
+            activeProfile.image
+          } alt="profile picture">
+          <h3 id="name" class="modal-name cap">${
+            activeProfile.name.first + ' ' + activeProfile.name.last
+          }</h3>
+          <p class="modal-text">${activeProfile.email}</p>
+          <p class="modal-text cap">${activeProfile.city}</p>
+          <hr>
+          <p class="modal-text">${activeProfile.phone}</p>
+          <p class="modal-text">${
+            activeProfile.address.street.number +
+            ' ' +
+            activeProfile.address.street.name +
+            ', ' +
+            activeProfile.address.state +
+            ' ' +
+            activeProfile.address.postcode
+          }</p>
+          <p class="modal-text">Birthday: ${activeProfile.birthday}</p>
+      </div>
+  </div>`;
+
+  gallery.insertAdjacentHTML('afterend', modalHTML);
+}
+
+/**
  * Function to generate HTML for a single card
- * @param {Object} User object chosen to be used
+ * @param {Object} user object chosen to be used
  * @return {String} HTML for the employee card
  */
 function generateCard(user) {
@@ -77,6 +73,7 @@ function buildGallery(data) {
   const gallery = document.getElementById('gallery');
 
   users.forEach((user) => {
+    userProfiles.push(user);
     let singleCard = generateCard(user);
     gallery.insertAdjacentHTML('beforeend', singleCard);
   });
@@ -84,7 +81,27 @@ function buildGallery(data) {
   const allCards = document.querySelectorAll('.card');
   allCards.forEach((card) => {
     card.addEventListener('click', (e) => {
-      console.log(e.currentTarget.childNodes[3].childNodes[1].textContent);
+      const userName = e.currentTarget.childNodes[3].childNodes[1].textContent;
+      updateActiveProfile(userName);
     });
   });
+}
+
+function updateActiveProfile(profileName) {
+  for (let i = 0; i < userProfiles.length; i++) {
+    if (
+      userProfiles[i].name.first + ' ' + userProfiles[i].name.last ===
+      profileName
+    ) {
+      activeProfile.image = userProfiles[i].picture.medium;
+      activeProfile.name = userProfiles[i].name;
+      activeProfile.email = userProfiles[i].email;
+      activeProfile.city = userProfiles[i].location.city;
+      activeProfile.phone = userProfiles[i].phone;
+      activeProfile.address = userProfiles[i].location;
+      activeProfile.birthday = userProfiles[i].dob.date;
+    }
+  }
+  console.log(activeProfile);
+  updateModal();
 }
