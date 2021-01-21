@@ -1,6 +1,21 @@
 const randomUserUrl = 'https://randomuser.me/api/?results=12';
+const userIndex = 0;
 const userProfiles = [];
 const activeProfile = {};
+const modalHTML = `<div class="modal-container">
+  <div class="modal">
+      <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
+      <div class="modal-info-container">
+          <img class="modal-img" src= alt="profile picture">
+          <h3 id="name" class="modal-name cap"></h3>
+          <p class="modal-text"></p>
+          <p class="modal-text cap"></p>
+          <hr>
+          <p class="modal-text"></p>
+          <p class="modal-text"></p>
+          <p class="modal-text">Birthday: </p>
+      </div>
+  </div>`;
 
 // Fetch API data
 window.onload = () => {
@@ -8,41 +23,47 @@ window.onload = () => {
     .then((response) => response.json())
     .then(buildGallery)
     .catch((err) => console.log(err));
+
+  gallery.insertAdjacentHTML('afterend', modalHTML);
+  document.querySelector('.modal-container').style.display = 'none';
 };
+
+function showModal() {
+  document.querySelector('.modal-container').style.display = '';
+}
 
 /**
  * Function to update modal information
  * @param {Object} profile object chosen to be used
  */
 function updateModal() {
-  const modalHTML = `<div class="modal-container">
-  <div class="modal">
-      <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-      <div class="modal-info-container">
-          <img class="modal-img" src=${
-            activeProfile.image
-          } alt="profile picture">
-          <h3 id="name" class="modal-name cap">${
-            activeProfile.name.first + ' ' + activeProfile.name.last
-          }</h3>
-          <p class="modal-text">${activeProfile.email}</p>
-          <p class="modal-text cap">${activeProfile.city}</p>
-          <hr>
-          <p class="modal-text">${activeProfile.phone}</p>
-          <p class="modal-text">${
-            activeProfile.address.street.number +
-            ' ' +
-            activeProfile.address.street.name +
-            ', ' +
-            activeProfile.address.state +
-            ' ' +
-            activeProfile.address.postcode
-          }</p>
-          <p class="modal-text">Birthday: ${activeProfile.birthday}</p>
-      </div>
-  </div>`;
+  const modalInfoContainer = document.querySelector('.modal-info-container');
+  console.log(modalInfoContainer.childNodes);
+  const modalImg = document.querySelector('.modal-img');
+  const modalName = document.querySelector('.modal-name');
+  const modalEmail = modalInfoContainer.childNodes[5];
+  const modalCity = modalInfoContainer.childNodes[7];
+  const modalPhone = modalInfoContainer.childNodes[11];
+  const modalAddress = modalInfoContainer.childNodes[13];
+  const modalBirthday = modalInfoContainer.childNodes[15];
 
-  gallery.insertAdjacentHTML('afterend', modalHTML);
+  modalImg.src = activeProfile.image;
+  modalName.innerHTML =
+    activeProfile.name.first + ' ' + activeProfile.name.last;
+  modalEmail.innerHTML = activeProfile.email;
+  modalCity.innerHTML = activeProfile.city;
+  modalPhone.innerHTML = activeProfile.phone;
+  modalAddress.innerHTML =
+    activeProfile.address.street.number +
+    ' ' +
+    activeProfile.address.street.name +
+    ', ' +
+    activeProfile.address.state +
+    ' ' +
+    activeProfile.address.postcode;
+  modalBirthday.innerHTML = `Birthday: ${activeProfile.birthday}`;
+
+  showModal();
 }
 
 /**
@@ -87,12 +108,17 @@ function buildGallery(data) {
   });
 }
 
+/**
+ * Function to update the active profile for use in the app
+ * @param {String} Name of profile to be set as active
+ */
 function updateActiveProfile(profileName) {
   for (let i = 0; i < userProfiles.length; i++) {
     if (
       userProfiles[i].name.first + ' ' + userProfiles[i].name.last ===
       profileName
     ) {
+      activeProfile.id = i;
       activeProfile.image = userProfiles[i].picture.medium;
       activeProfile.name = userProfiles[i].name;
       activeProfile.email = userProfiles[i].email;
