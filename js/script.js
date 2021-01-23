@@ -1,6 +1,6 @@
-const randomUserUrl = 'https://randomuser.me/api/?results=12';
+const randomUserUrl = 'https://randomuser.me/api/?results=12&nat=US';
 const userIndex = 0;
-const userProfiles = [];
+let userProfiles = [];
 const activeProfile = {};
 const modalHTML = `<div class="modal-container">
   <div class="modal">
@@ -17,17 +17,38 @@ const modalHTML = `<div class="modal-container">
       </div>
   </div>`;
 
-// Fetch API data
+// Fetch API data, build and append search input
 window.onload = () => {
   fetch(randomUserUrl)
-    .then((response) => response.json())
+    .then((response) => (userProfiles = response.results))
     .then(buildGallery)
     .catch((err) => console.log(err));
 
   gallery.insertAdjacentHTML('afterend', modalHTML);
   document.querySelector('.modal-container').style.display = 'none';
+
+  // Build search input
+  const searchContainer = document.createElement('div');
+  searchContainer.setAttribute('class', 'search-container');
+
+  searchContainer.innerHTML = `<form action="#" method="get">
+    <input type="search" id="search-input" class="search-input" placeholder="Search...">
+    <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+    </form>`;
+
+  // Append search input to the header
+  document
+    .querySelector('.header-inner-container')
+    .appendChild(searchContainer);
+
+  const submitBtn = document.getElementById('search-submit');
+  submitBtn.addEventListener('click', () => {
+    console.log('submit clicked');
+    searchBar();
+  });
 };
 
+// Function to handle toggling of modal
 function toggleModal() {
   const modalContainer = document.querySelector('.modal-container');
   modalContainer.style.display = '';
@@ -94,11 +115,10 @@ function generateCard(user) {
  * @param {Object} List of users from API
  */
 function buildGallery(data) {
-  const users = data.results;
+  const users = data;
   const gallery = document.getElementById('gallery');
 
   users.forEach((user) => {
-    userProfiles.push(user);
     let singleCard = generateCard(user);
     gallery.insertAdjacentHTML('beforeend', singleCard);
   });
@@ -129,9 +149,34 @@ function updateActiveProfile(profileName) {
       activeProfile.city = userProfiles[i].location.city;
       activeProfile.phone = userProfiles[i].phone;
       activeProfile.address = userProfiles[i].location;
-      activeProfile.birthday = userProfiles[i].dob.date;
+      activeProfile.birthday = convertBirthday(userProfiles[i].dob.date);
     }
   }
   console.log(activeProfile);
   updateModal();
+}
+
+/**
+ * Function to handle converting birthday date format
+ * @param {String} date of profile birthday
+ * @return {String} date formatted as MM/DD/YYY
+ */
+function convertBirthday(date) {
+  return new Date(date).toLocaleDateString();
+}
+
+// Function to handle search bar
+function searchBar() {
+  const searchInput = document.getElementById('search-input');
+
+  for (let i = 0; i < userProfiles.length; i++) {
+    let fullName = userProfiles[i].name.first + ' ' + userProfiles[i].name.last;
+    console.log(fullName);
+    if (fullName === searchInput.value) {
+      console.log(true);
+      buildGallery(fullName);
+    } else {
+      console.log(false);
+    }
+  }
 }
