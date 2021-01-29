@@ -15,6 +15,11 @@ const modalHTML = `<div class="modal-container">
           <p class="modal-text"></p>
           <p class="modal-text">Birthday: </p>
       </div>
+
+      <div class="modal-btn-container">
+          <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+          <button type="button" id="modal-next" class="modal-next btn">Next</button>
+      </div>
   </div>`;
 
 // Fetch API data, build and append search input
@@ -60,7 +65,6 @@ function updateUserProfiles(data) {
     userProfiles.push(user);
   });
 
-  console.log(users);
   return users;
 }
 
@@ -92,7 +96,6 @@ function buildGallery(data) {
   const users = data;
   const gallery = document.getElementById('gallery');
 
-  console.log(typeof users);
   users.forEach((user) => {
     let singleCard = generateCard(user);
     gallery.insertAdjacentHTML('beforeend', singleCard);
@@ -187,16 +190,20 @@ function updateModal() {
 // Function to handle search bar
 function searchBar() {
   const searchInput = document.getElementById('search-input');
+  const gallery = document.getElementById('gallery');
 
   for (let i = 0; i < userProfiles.length; i++) {
     let fullName = userProfiles[i].name.first + ' ' + userProfiles[i].name.last;
-    console.log(fullName);
+
     if (fullName === searchInput.value) {
-      console.log(true);
-      console.log(userProfiles[i].name);
-      buildGallery(userProfiles[i]);
-    } else {
-      console.log(false);
+      const singleCard = generateCard(userProfiles[i]);
+      gallery.innerHTML = singleCard;
     }
   }
+
+  const card = document.querySelectorAll('.card');
+  card[0].addEventListener('click', (e) => {
+    const userName = e.currentTarget.childNodes[3].childNodes[1].textContent;
+    updateActiveProfile(userName);
+  });
 }
