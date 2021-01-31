@@ -1,6 +1,6 @@
 const randomUserUrl = 'https://randomuser.me/api/?results=12&nat=US';
 const userIndex = 0;
-const userProfiles = [];
+const employeeProfiles = [];
 const activeProfile = {};
 const modalHTML = `<div class="modal-container">
   <div class="modal">
@@ -26,7 +26,7 @@ const modalHTML = `<div class="modal-container">
 window.onload = () => {
   fetch(randomUserUrl)
     .then((response) => response.json())
-    .then(updateUserProfiles)
+    .then(updateEmployeeProfiles)
     .then(buildGallery)
     .catch((err) => console.log(err));
 
@@ -49,20 +49,19 @@ window.onload = () => {
 
   const submitBtn = document.getElementById('search-submit');
   submitBtn.addEventListener('click', () => {
-    console.log('submit clicked');
     searchBar();
   });
 };
 
 /**
- * Function to update the userProfiles array
+ * Function to update the employeeProfiles array
  * @param {Object} data object to be parsed for results
  * @return {Object} results of the data object to use throughout application
  */
-function updateUserProfiles(data) {
+function updateEmployeeProfiles(data) {
   const users = data.results;
   users.forEach((user) => {
-    userProfiles.push(user);
+    employeeProfiles.push(user);
   });
 
   return users;
@@ -92,7 +91,6 @@ function generateCard(user) {
  * @param {Object} List of users from API
  */
 function buildGallery(data) {
-  console.log('build gallery data: ' + data);
   const users = data;
   const gallery = document.getElementById('gallery');
 
@@ -116,22 +114,21 @@ function buildGallery(data) {
  * @param {String} Name of profile to be set as active
  */
 function updateActiveProfile(profileName) {
-  for (let i = 0; i < userProfiles.length; i++) {
+  for (let i = 0; i < employeeProfiles.length; i++) {
     if (
-      userProfiles[i].name.first + ' ' + userProfiles[i].name.last ===
+      employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last ===
       profileName
     ) {
       activeProfile.id = i;
-      activeProfile.image = userProfiles[i].picture.medium;
-      activeProfile.name = userProfiles[i].name;
-      activeProfile.email = userProfiles[i].email;
-      activeProfile.city = userProfiles[i].location.city;
-      activeProfile.phone = userProfiles[i].phone;
-      activeProfile.address = userProfiles[i].location;
-      activeProfile.birthday = convertBirthday(userProfiles[i].dob.date);
+      activeProfile.image = employeeProfiles[i].picture.medium;
+      activeProfile.name = employeeProfiles[i].name;
+      activeProfile.email = employeeProfiles[i].email;
+      activeProfile.city = employeeProfiles[i].location.city;
+      activeProfile.phone = employeeProfiles[i].phone;
+      activeProfile.address = employeeProfiles[i].location;
+      activeProfile.birthday = convertBirthday(employeeProfiles[i].dob.date);
     }
   }
-  console.log(activeProfile);
   updateModal();
 }
 
@@ -187,23 +184,57 @@ function updateModal() {
   toggleModal();
 }
 
-// Function to handle search bar
+// Function to handle search bar functionality
+// Include allowing for partial matches and case insensitivities
+// Include some way for users to get back to the full list of employees
 function searchBar() {
   const searchInput = document.getElementById('search-input');
   const gallery = document.getElementById('gallery');
+  const searchInputValue = searchInput.value;
+  const employeeNames = [];
 
-  for (let i = 0; i < userProfiles.length; i++) {
-    let fullName = userProfiles[i].name.first + ' ' + userProfiles[i].name.last;
+  // Collect all employee names
+  for (let i = 0; i < employeeProfiles.length; i++) {
+    employeeNames.push(
+      employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last
+    );
+  }
+  console.log(employeeNames);
 
-    if (fullName === searchInput.value) {
-      const singleCard = generateCard(userProfiles[i]);
-      gallery.innerHTML = singleCard;
+  // Loop through each employee Name
+  for (let i = 0; i < employeeNames.length; i++) {
+    let names = employeeNames[i];
+    console.log(names);
+
+    // Loop through each letter within each Name
+    for (let j = 0; j < employeeNames[i].length; j++) {
+      let letters = employeeNames[i][j].toLowerCase();
+      console.log(letters);
+
+      // Determine if search input value includes letters within each name
+      if (searchInputValue.includes(letters)) {
+        console.log(names);
+      }
     }
   }
 
-  const card = document.querySelectorAll('.card');
-  card[0].addEventListener('click', (e) => {
-    const userName = e.currentTarget.childNodes[3].childNodes[1].textContent;
-    updateActiveProfile(userName);
-  });
+  // search value string of the user input
+  // if value includes a value that is in the employeeProfiles.name array
+  // return that employeeProfiles.name
+
+  // for (let i = 0; i < employeeProfiles.length; i++) {
+  //   let fullName =
+  //     employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last;
+
+  //   if (fullName === searchInputValue) {
+  //     const singleCard = generateCard(employeeProfiles[i]);
+  //     gallery.innerHTML = singleCard;
+  //   }
+  // }
+
+  // const card = document.querySelectorAll('.card');
+  // card[0].addEventListener('click', (e) => {
+  //   const userName = e.currentTarget.childNodes[3].childNodes[1].textContent;
+  //   updateActiveProfile(userName);
+  // });
 }
