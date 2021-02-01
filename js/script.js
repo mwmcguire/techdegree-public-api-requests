@@ -1,8 +1,24 @@
+const employeeGallery = document.getElementById('gallery');
+
 const randomUserUrl = 'https://randomuser.me/api/?results=12&nat=US';
 const userIndex = 0;
-const employeeProfiles = [];
+let employeeProfiles = [];
 const activeProfile = {};
-const modalHTML = `<div class="modal-container">
+
+// Fetch API data, build and append search input
+const loadEmployees = async () => {
+  try {
+    const res = await fetch(randomUserUrl);
+    employeeProfiles = await res.json();
+    displayEmployees(employeeProfiles.results);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// Function to build the modal and preload it onto the page
+const buildModal = () => {
+  const modalHTML = `<div class="modal-container">
   <div class="modal">
       <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
       <div class="modal-info-container">
@@ -22,25 +38,19 @@ const modalHTML = `<div class="modal-container">
       </div>
   </div>`;
 
-// Fetch API data, build and append search input
-window.onload = () => {
-  fetch(randomUserUrl)
-    .then((response) => response.json())
-    .then(updateEmployeeProfiles)
-    .then(buildGallery)
-    .catch((err) => console.log(err));
-
-  gallery.insertAdjacentHTML('afterend', modalHTML);
+  employeeGallery.insertAdjacentHTML('afterend', modalHTML);
   document.querySelector('.modal-container').style.display = 'none';
+};
 
-  // Build search input
+// Function to build the search bar and display to the page
+const buildSearchBar = () => {
   const searchContainer = document.createElement('div');
   searchContainer.setAttribute('class', 'search-container');
 
   searchContainer.innerHTML = `<form action="#" method="get">
-    <input type="search" id="search-input" class="search-input" placeholder="Search...">
-    <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
-    </form>`;
+      <input type="search" id="search-input" class="search-input" placeholder="Search...">
+      <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+      </form>`;
 
   // Append search input to the header
   document
@@ -48,114 +58,93 @@ window.onload = () => {
     .appendChild(searchContainer);
 
   const submitBtn = document.getElementById('search-submit');
-  submitBtn.addEventListener('click', () => {
-    searchBar();
-  });
+  submitBtn.addEventListener('click', searchEmployees);
 };
-
-/**
- * Function to update the employeeProfiles array
- * @param {Object} data object to be parsed for results
- * @return {Object} results of the data object to use throughout application
- */
-function updateEmployeeProfiles(data) {
-  const users = data.results;
-  users.forEach((user) => {
-    employeeProfiles.push(user);
-  });
-
-  return users;
-}
-
-/**
- * Function to generate HTML for a single card
- * @param {Object} user object chosen to be used
- * @return {String} HTML for the employee card
- */
-function generateCard(user) {
-  const cardHTML = `<div class="card">
-  <div class="card-img-container">
-    <img class="card-img" src=${user.picture.thumbnail} alt="profile picture">
-  </div>
-  <div class="card-info-container">
-    <h3 id="name" class="card-name cap">${user.name.first} ${user.name.last}</h3>
-    <p class="card-text">${user.email}</p>
-    <p class="card-text cap">${user.location.city}, ${user.location.state}</p>
-  </div>
-</div>`;
-  return cardHTML;
-}
 
 /**
  * Function to build the gallery using generateCard function
  * @param {Object} List of users from API
  */
-function buildGallery(data) {
-  const users = data;
-  const gallery = document.getElementById('gallery');
+const displayEmployees = (employees) => {
+  const htmlString = employees
+    .map((employee) => {
+      return `<div class="card">
+    <div class="card-img-container">
+      <img class="card-img" src=${employee.picture.thumbnail} alt="profile picture">
+    </div>
+    <div class="card-info-container">
+      <h3 id="name" class="card-name cap">${employee.name.first} ${employee.name.last}</h3>
+      <p class="card-text">${employee.email}</p>
+      <p class="card-text cap">${employee.location.city}, ${employee.location.state}</p>
+    </div>
+  </div>`;
+    })
+    .join('');
 
-  users.forEach((user) => {
-    let singleCard = generateCard(user);
-    gallery.insertAdjacentHTML('beforeend', singleCard);
-  });
+  employeeGallery.insertAdjacentHTML('beforeend', htmlString);
 
   // add click event listener to all cards and update the activeProfile when clicked
   const allCards = document.querySelectorAll('.card');
   allCards.forEach((card) => {
     card.addEventListener('click', (e) => {
-      const userName = e.currentTarget.childNodes[3].childNodes[1].textContent;
-      updateActiveProfile(userName);
+      const employeeName =
+        e.currentTarget.childNodes[3].childNodes[1].textContent;
+      updateActiveProfile(employeeName);
     });
   });
-}
+};
 
 /**
  * Function to update the active profile for use in the app
  * @param {String} Name of profile to be set as active
  */
-function updateActiveProfile(profileName) {
-  for (let i = 0; i < employeeProfiles.length; i++) {
+const updateActiveProfile = (profileName) => {
+  for (let i = 0; i < employeeProfiles.results.length; i++) {
     if (
-      employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last ===
+      employeeProfiles.results[i].name.first +
+        ' ' +
+        employeeProfiles.results[i].name.last ===
       profileName
     ) {
       activeProfile.id = i;
-      activeProfile.image = employeeProfiles[i].picture.medium;
-      activeProfile.name = employeeProfiles[i].name;
-      activeProfile.email = employeeProfiles[i].email;
-      activeProfile.city = employeeProfiles[i].location.city;
-      activeProfile.phone = employeeProfiles[i].phone;
-      activeProfile.address = employeeProfiles[i].location;
-      activeProfile.birthday = convertBirthday(employeeProfiles[i].dob.date);
+      activeProfile.image = employeeProfiles.results[i].picture.medium;
+      activeProfile.name = employeeProfiles.results[i].name;
+      activeProfile.email = employeeProfiles.results[i].email;
+      activeProfile.city = employeeProfiles.results[i].location.city;
+      activeProfile.phone = employeeProfiles.results[i].phone;
+      activeProfile.address = employeeProfiles.results[i].location;
+      activeProfile.birthday = convertBirthday(
+        employeeProfiles.results[i].dob.date
+      );
     }
   }
   updateModal();
-}
+};
 
 /**
  * Function to handle converting birthday date format
  * @param {String} date of profile birthday
  * @return {String} date formatted as MM/DD/YYY
  */
-function convertBirthday(date) {
+const convertBirthday = (date) => {
   return new Date(date).toLocaleDateString();
-}
+};
 
 // Function to handle toggling of modal
-function toggleModal() {
+const toggleModal = () => {
   const modalContainer = document.querySelector('.modal-container');
   modalContainer.style.display = '';
   const closeBtn = document.getElementsByTagName('strong')[0];
   closeBtn.addEventListener('click', () => {
     modalContainer.style.display = 'none';
   });
-}
+};
 
 /**
  * Function to update modal information
  * @param {Object} profile object chosen to be used
  */
-function updateModal() {
+const updateModal = () => {
   const modalInfoContainer = document.querySelector('.modal-info-container');
   const modalImg = document.querySelector('.modal-img');
   const modalName = document.querySelector('.modal-name');
@@ -182,41 +171,48 @@ function updateModal() {
   modalBirthday.innerHTML = `Birthday: ${activeProfile.birthday}`;
 
   toggleModal();
-}
+};
 
 // Function to handle search bar functionality
 // Include allowing for partial matches and case insensitivities
 // Include some way for users to get back to the full list of employees
-function searchBar() {
+const searchEmployees = () => {
   const searchInput = document.getElementById('search-input');
-  const gallery = document.getElementById('gallery');
   const searchInputValue = searchInput.value;
   const employeeNames = [];
 
+  employeeProfiles.results.forEach((employee) => {
+    employeeNames.push(employee.name.first + ' ' + employee.name.last);
+  });
+
+  employeeProfiles.results.filter((employee) => {
+    employee;
+  });
+
   // Collect all employee names
-  for (let i = 0; i < employeeProfiles.length; i++) {
-    employeeNames.push(
-      employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last
-    );
-  }
-  console.log(employeeNames);
+  // for (let i = 0; i < employeeProfiles.length; i++) {
+  //   employeeNames.push(
+  //     employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last
+  //   );
+  // }
+  // console.log(employeeNames);
 
   // Loop through each employee Name
-  for (let i = 0; i < employeeNames.length; i++) {
-    let names = employeeNames[i];
-    console.log(names);
+  // for (let i = 0; i < employeeNames.length; i++) {
+  //   let names = employeeNames[i];
+  //   console.log(names);
 
-    // Loop through each letter within each Name
-    for (let j = 0; j < employeeNames[i].length; j++) {
-      let letters = employeeNames[i][j].toLowerCase();
-      console.log(letters);
+  //   // Loop through each letter within each Name
+  //   for (let j = 0; j < employeeNames[i].length; j++) {
+  //     let letters = employeeNames[i][j].toLowerCase();
+  //     console.log(letters);
 
-      // Determine if search input value includes letters within each name
-      if (searchInputValue.includes(letters)) {
-        console.log(names);
-      }
-    }
-  }
+  //     // Determine if search input value includes letters within each name
+  //     if (searchInputValue.includes(letters)) {
+  //       console.log(names);
+  //     }
+  //   }
+  // }
 
   // search value string of the user input
   // if value includes a value that is in the employeeProfiles.name array
@@ -237,4 +233,8 @@ function searchBar() {
   //   const userName = e.currentTarget.childNodes[3].childNodes[1].textContent;
   //   updateActiveProfile(userName);
   // });
-}
+};
+
+buildModal();
+buildSearchBar();
+loadEmployees();
