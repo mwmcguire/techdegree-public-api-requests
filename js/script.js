@@ -9,8 +9,10 @@ const activeProfile = {};
 const loadEmployees = async () => {
   try {
     const res = await fetch(randomUserUrl);
-    employeeProfiles = await res.json();
-    displayEmployees(employeeProfiles.results);
+    const data = await res.json();
+    employeeProfiles = data.results;
+    console.log(employeeProfiles);
+    displayEmployees(employeeProfiles);
   } catch (err) {
     console.error(err);
   }
@@ -81,7 +83,8 @@ const displayEmployees = (employees) => {
     })
     .join('');
 
-  employeeGallery.insertAdjacentHTML('beforeend', htmlString);
+  // employeeGallery.insertAdjacentHTML('beforeend', htmlString);
+  employeeGallery.innerHTML = htmlString;
 
   // add click event listener to all cards and update the activeProfile when clicked
   const allCards = document.querySelectorAll('.card');
@@ -99,23 +102,19 @@ const displayEmployees = (employees) => {
  * @param {String} Name of profile to be set as active
  */
 const updateActiveProfile = (profileName) => {
-  for (let i = 0; i < employeeProfiles.results.length; i++) {
+  for (let i = 0; i < employeeProfiles.length; i++) {
     if (
-      employeeProfiles.results[i].name.first +
-        ' ' +
-        employeeProfiles.results[i].name.last ===
+      employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last ===
       profileName
     ) {
       activeProfile.id = i;
-      activeProfile.image = employeeProfiles.results[i].picture.medium;
-      activeProfile.name = employeeProfiles.results[i].name;
-      activeProfile.email = employeeProfiles.results[i].email;
-      activeProfile.city = employeeProfiles.results[i].location.city;
-      activeProfile.phone = employeeProfiles.results[i].phone;
-      activeProfile.address = employeeProfiles.results[i].location;
-      activeProfile.birthday = convertBirthday(
-        employeeProfiles.results[i].dob.date
-      );
+      activeProfile.image = employeeProfiles[i].picture.medium;
+      activeProfile.name = employeeProfiles[i].name;
+      activeProfile.email = employeeProfiles[i].email;
+      activeProfile.city = employeeProfiles[i].location.city;
+      activeProfile.phone = employeeProfiles[i].phone;
+      activeProfile.address = employeeProfiles[i].location;
+      activeProfile.birthday = convertBirthday(employeeProfiles[i].dob.date);
     }
   }
   updateModal();
@@ -178,61 +177,15 @@ const updateModal = () => {
 // Include some way for users to get back to the full list of employees
 const searchEmployees = () => {
   const searchInput = document.getElementById('search-input');
-  const searchInputValue = searchInput.value;
-  const employeeNames = [];
+  const searchInputValue = searchInput.value.toLowerCase();
 
-  employeeProfiles.results.forEach((employee) => {
-    employeeNames.push(employee.name.first + ' ' + employee.name.last);
+  const filteredEmployees = employeeProfiles.filter((employee) => {
+    return (
+      employee.name.first.toLowerCase().includes(searchInputValue) ||
+      employee.name.last.toLowerCase().includes(searchInputValue)
+    );
   });
-
-  employeeProfiles.results.filter((employee) => {
-    employee;
-  });
-
-  // Collect all employee names
-  // for (let i = 0; i < employeeProfiles.length; i++) {
-  //   employeeNames.push(
-  //     employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last
-  //   );
-  // }
-  // console.log(employeeNames);
-
-  // Loop through each employee Name
-  // for (let i = 0; i < employeeNames.length; i++) {
-  //   let names = employeeNames[i];
-  //   console.log(names);
-
-  //   // Loop through each letter within each Name
-  //   for (let j = 0; j < employeeNames[i].length; j++) {
-  //     let letters = employeeNames[i][j].toLowerCase();
-  //     console.log(letters);
-
-  //     // Determine if search input value includes letters within each name
-  //     if (searchInputValue.includes(letters)) {
-  //       console.log(names);
-  //     }
-  //   }
-  // }
-
-  // search value string of the user input
-  // if value includes a value that is in the employeeProfiles.name array
-  // return that employeeProfiles.name
-
-  // for (let i = 0; i < employeeProfiles.length; i++) {
-  //   let fullName =
-  //     employeeProfiles[i].name.first + ' ' + employeeProfiles[i].name.last;
-
-  //   if (fullName === searchInputValue) {
-  //     const singleCard = generateCard(employeeProfiles[i]);
-  //     gallery.innerHTML = singleCard;
-  //   }
-  // }
-
-  // const card = document.querySelectorAll('.card');
-  // card[0].addEventListener('click', (e) => {
-  //   const userName = e.currentTarget.childNodes[3].childNodes[1].textContent;
-  //   updateActiveProfile(userName);
-  // });
+  displayEmployees(filteredEmployees);
 };
 
 buildModal();
