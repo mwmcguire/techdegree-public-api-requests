@@ -1,7 +1,6 @@
 const employeeGallery = document.getElementById('gallery');
 
 const randomUserUrl = 'https://randomuser.me/api/?results=12&nat=US';
-const userIndex = 0;
 let employeeProfiles = [];
 const activeProfile = {};
 
@@ -42,6 +41,53 @@ const buildModal = () => {
 
   employeeGallery.insertAdjacentHTML('afterend', modalHTML);
   document.querySelector('.modal-container').style.display = 'none';
+
+  // Attach event listeners to prev and next buttons
+  const prev = document.getElementById('modal-prev');
+  const next = document.getElementById('modal-next');
+
+  prev.addEventListener('click', prevEmployee);
+  next.addEventListener('click', nextEmployee);
+};
+
+// Function to handle modal previous button
+const prevEmployee = () => {
+  const prevBtn = document.getElementById('modal-prev');
+  const nextBtn = document.getElementById('modal-next');
+  let employeeId = activeProfile.id;
+  nextBtn.disabled = false;
+
+  if (employeeId === 0) {
+    prevBtn.disabled = true;
+  } else {
+    employeeId -= 1;
+    let employeeName =
+      employeeProfiles[employeeId].name.first +
+      ' ' +
+      employeeProfiles[employeeId].name.last;
+
+    updateActiveProfile(employeeName);
+  }
+};
+
+// Function to handle modal next button
+const nextEmployee = () => {
+  const nextBtn = document.getElementById('modal-next');
+  const prevBtn = document.getElementById('modal-prev');
+  let employeeId = activeProfile.id;
+  prevBtn.disabled = false;
+
+  if (employeeId === 11) {
+    nextBtn.disabled = true;
+  } else {
+    employeeId += 1;
+    let employeeName =
+      employeeProfiles[employeeId].name.first +
+      ' ' +
+      employeeProfiles[employeeId].name.last;
+
+    updateActiveProfile(employeeName);
+  }
 };
 
 // Function to build the search bar and display to the page
@@ -173,8 +219,6 @@ const updateModal = () => {
 };
 
 // Function to handle search bar functionality
-// Include allowing for partial matches and case insensitivities
-// Include some way for users to get back to the full list of employees
 const searchEmployees = () => {
   const searchInput = document.getElementById('search-input');
   const searchInputValue = searchInput.value.toLowerCase();
