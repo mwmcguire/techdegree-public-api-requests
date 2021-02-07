@@ -1,5 +1,4 @@
 const employeeGallery = document.getElementById('gallery');
-
 const randomUserUrl = 'https://randomuser.me/api/?results=12&nat=US';
 let employeeProfiles = [];
 const activeProfile = {};
@@ -232,6 +231,47 @@ const searchEmployees = () => {
   displayEmployees(filteredEmployees);
 };
 
+// Function to build random employee button
+const buildRandomBtn = () => {
+  const btnHTML =
+    '<button type="button" id="random-btn" class="random-btn">Get Random Employees</button>';
+  employeeGallery.insertAdjacentHTML('afterend', btnHTML);
+
+  // Random button styling
+  const randomBtn = document.getElementById('random-btn');
+  randomBtn.style.cssText = `display: inline-block;
+    cursor: pointer;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.9);
+    padding: 1.25em 2.0em;
+    margin-top: 1.0em;
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 0.35em;
+    transition: .4s ease-out;
+    outline: none;`;
+
+  // add media query to random button
+  const mediaQuery = window.matchMedia('(min-width: 1024px)');
+  console.log(mediaQuery);
+
+  if (mediaQuery.matches) {
+    randomBtn.addEventListener('mouseenter', () => {
+      randomBtn.style.background = 'rgba(255, 255, 255, 1)';
+      randomBtn.style.color = 'rgba(25, 25, 25, 1)';
+    });
+
+    randomBtn.addEventListener('mouseleave', () => {
+      randomBtn.style.background = 'rgba(0, 0, 0, 0.8)';
+      randomBtn.style.color = 'rgba(255, 255, 255, 0.9)';
+    });
+  }
+
+  randomBtn.addEventListener('click', loadEmployees);
+};
+
+// Function calls
 buildModal();
 buildSearchBar();
 loadEmployees();
+buildRandomBtn();
