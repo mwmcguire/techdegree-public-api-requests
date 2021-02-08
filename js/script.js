@@ -75,7 +75,6 @@ const nextEmployee = () => {
   let employeeId = activeProfile.id;
   prevBtn.disabled = false;
 
-  console.log(employeeProfiles.length - 1);
   if (employeeId === employeeProfiles.length - 1) {
     nextBtn.disabled = true;
   } else {
@@ -220,6 +219,13 @@ const updateModal = () => {
 const searchEmployees = () => {
   const searchInput = document.getElementById('search-input');
   const searchInputValue = searchInput.value.toLowerCase();
+
+  if (!searchInputValue) {
+    searchInput.placeholder = 'Please Enter a Name';
+    setTimeout(() => {
+      searchInput.placeholder = 'Search...';
+    }, 3000);
+  }
 
   const filteredEmployees = employeeProfiles.filter((employee) => {
     return (
