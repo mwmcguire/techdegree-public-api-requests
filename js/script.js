@@ -9,7 +9,6 @@ const loadEmployees = async () => {
     const res = await fetch(randomUserUrl);
     const data = await res.json();
     employeeProfiles = data.results;
-    console.log(employeeProfiles);
     displayEmployees(employeeProfiles);
   } catch (err) {
     console.error(err);
@@ -128,7 +127,6 @@ const displayEmployees = (employees) => {
     })
     .join('');
 
-  // employeeGallery.insertAdjacentHTML('beforeend', htmlString);
   employeeGallery.innerHTML = htmlString;
 
   // add click event listener to all cards and update the activeProfile when clicked
@@ -253,7 +251,6 @@ const buildRandomBtn = () => {
 
   // add media query to random button
   const mediaQuery = window.matchMedia('(min-width: 1024px)');
-  console.log(mediaQuery);
 
   if (mediaQuery.matches) {
     randomBtn.addEventListener('mouseenter', () => {
