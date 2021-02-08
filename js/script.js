@@ -12,6 +12,7 @@ const loadEmployees = async () => {
     displayEmployees(employeeProfiles);
   } catch (err) {
     console.error(err);
+    displayError('No Employee Data Found');
   }
 };
 
@@ -128,6 +129,7 @@ const displayEmployees = (employees) => {
     .join('');
 
   employeeGallery.innerHTML = htmlString;
+  removeError();
 
   // add click event listener to all cards and update the activeProfile when clicked
   const allCards = document.querySelectorAll('.card');
@@ -233,8 +235,48 @@ const searchEmployees = () => {
       employee.name.last.toLowerCase().includes(searchInputValue)
     );
   });
-  displayEmployees(filteredEmployees);
-  employeeProfiles = filteredEmployees;
+
+  if (filteredEmployees.length === 0) {
+    displayError('No Employees Found');
+  } else {
+    displayEmployees(filteredEmployees);
+    employeeProfiles = filteredEmployees;
+  }
+};
+
+// Function to build the error box
+const buildErrorBox = () => {
+  console.log('build error box');
+  const searchContainer = document.querySelector('.search-container');
+  const errorHTML = '<div class="error"><p></p></div>';
+  searchContainer.insertAdjacentHTML('beforebegin', errorHTML);
+
+  const errorBox = document.querySelector('.error');
+  errorBox.style.cssText = `
+  padding: 0.75em 2.0em;
+  margin: auto;
+  margin-top: 0.35em;
+  text-transform: uppercase;
+  color: rgba(255, 20, 20);`;
+
+  errorBox.style.display = 'none';
+};
+
+/**
+ * Function to display error box
+ * @param {String} errorText Text to display
+ */
+const displayError = (errorText) => {
+  console.log(errorText);
+  const errorBox = document.querySelector('.error');
+  errorBox.firstElementChild.textContent = errorText;
+  errorBox.style.display = 'inline-block';
+};
+
+// Function to remove the error box
+const removeError = () => {
+  const errorBox = document.querySelector('.error');
+  errorBox.style.display = 'none';
 };
 
 // Function to build random employee button
@@ -250,7 +292,7 @@ const buildRandomBtn = () => {
     font-size: 0.85em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.9);
-    padding: 1.25em 2.0em;
+    padding: 1.0em 2.0em;
     margin-top: 1.0em;
     background: rgba(0, 0, 0, 0.8);
     border-radius: 0.35em;
@@ -258,9 +300,9 @@ const buildRandomBtn = () => {
     outline: none;`;
 
   // add media query to random button
-  const mediaQuery = window.matchMedia('(min-width: 1024px)');
+  const randomMediaQuery = window.matchMedia('(min-width: 1024px)');
 
-  if (mediaQuery.matches) {
+  if (randomMediaQuery.matches) {
     randomBtn.addEventListener('mouseenter', () => {
       randomBtn.style.background = 'rgba(255, 255, 255, 1)';
       randomBtn.style.color = 'rgba(25, 25, 25, 1)';
@@ -278,5 +320,6 @@ const buildRandomBtn = () => {
 // Function calls
 buildModal();
 buildSearchBar();
+buildErrorBox();
 loadEmployees();
 buildRandomBtn();
