@@ -75,7 +75,8 @@ const nextEmployee = () => {
   let employeeId = activeProfile.id;
   prevBtn.disabled = false;
 
-  if (employeeId === 11) {
+  console.log(employeeProfiles.length - 1);
+  if (employeeId === employeeProfiles.length - 1) {
     nextBtn.disabled = true;
   } else {
     employeeId += 1;
@@ -227,6 +228,7 @@ const searchEmployees = () => {
     );
   });
   displayEmployees(filteredEmployees);
+  employeeProfiles = filteredEmployees;
 };
 
 // Function to build random employee button
