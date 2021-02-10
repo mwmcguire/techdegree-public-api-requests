@@ -22,7 +22,7 @@ const buildModal = () => {
   <div class="modal">
       <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
       <div class="modal-info-container">
-          <img class="modal-img" src= alt="profile picture">
+          <img class="modal-img" src="" alt="profile picture">
           <h3 id="name" class="modal-name cap"></h3>
           <p class="modal-text"></p>
           <p class="modal-text cap"></p>
@@ -117,7 +117,7 @@ const displayEmployees = (employees) => {
     .map((employee) => {
       return `<div class="card">
     <div class="card-img-container">
-      <img class="card-img" src=${employee.picture.thumbnail} alt="profile picture">
+      <img class="card-img" src=${employee.picture.large} alt="profile picture">
     </div>
     <div class="card-info-container">
       <h3 id="name" class="card-name cap">${employee.name.first} ${employee.name.last}</h3>
@@ -153,7 +153,7 @@ const updateActiveProfile = (profileName) => {
       profileName
     ) {
       activeProfile.id = i;
-      activeProfile.image = employeeProfiles[i].picture.medium;
+      activeProfile.image = employeeProfiles[i].picture.large;
       activeProfile.name = employeeProfiles[i].name;
       activeProfile.email = employeeProfiles[i].email;
       activeProfile.city = employeeProfiles[i].location.city;
@@ -178,7 +178,7 @@ const convertBirthday = (date) => {
 const toggleModal = () => {
   const modalContainer = document.querySelector('.modal-container');
   modalContainer.style.display = '';
-  const closeBtn = document.getElementsByTagName('strong')[0];
+  const closeBtn = document.getElementById('modal-close-btn');
   closeBtn.addEventListener('click', () => {
     modalContainer.style.display = 'none';
   });
@@ -218,7 +218,8 @@ const updateModal = () => {
 };
 
 // Function to handle search bar functionality
-const searchEmployees = () => {
+const searchEmployees = (e) => {
+  e.preventDefault();
   const searchInput = document.getElementById('search-input');
   const searchInputValue = searchInput.value.toLowerCase();
 
@@ -246,7 +247,6 @@ const searchEmployees = () => {
 
 // Function to build the error box
 const buildErrorBox = () => {
-  console.log('build error box');
   const searchContainer = document.querySelector('.search-container');
   const errorHTML = '<div class="error"><p></p></div>';
   searchContainer.insertAdjacentHTML('beforebegin', errorHTML);
