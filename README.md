@@ -13,7 +13,7 @@ HTML, CSS, JavaScript
 
 ## Usage
 
-Coming Soon
+Click here ---> https://mwmcguire.github.io/techdegree-public-api-requests/
 
 ## Authors and acknowledgement
 
